@@ -37,7 +37,7 @@
     "lodash": "catalog:",
     "mermaid": "^11.12.2",
     "next": "catalog:",
-    "next-auth": "5.0.0-beta.29",
+    "next-auth": "5.0.0-beta.30",
     "openapi-fetch": "^0.15.0",
     "openapi-typescript-helpers": "^0.0.15",
     "openid-client": "^6.8.1",
