@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { z } from 'zod';
-
+import { createCallApi } from './call-api';
 import type { ContextPermissionsGrant, GlobalPermissionsGrant, ModelCapability } from './types';
 import { contextSchema, contextTokenSchema, listConnectorsResponseSchema, modelProviderMatchSchema } from './types';
+import { createUsersApi } from './users/api';
 
 export interface MatchProvidersParams {
   suggestedModels: string[] | null;
@@ -23,57 +23,21 @@ export interface CreateContextTokenParams {
 export const buildApiClient = (
   {
     baseUrl,
-    fetch: customFetchImpl,
+    fetch: fetchFn,
   }: {
     baseUrl: string;
     fetch?: typeof globalThis.fetch;
   } = { baseUrl: '' },
 ) => {
-  const maybeFetchFn = customFetchImpl ?? (typeof globalThis.fetch !== 'undefined' ? globalThis.fetch : undefined);
+  const maybeFetch = fetchFn ?? (typeof globalThis.fetch !== 'undefined' ? globalThis.fetch : undefined);
 
-  if (!maybeFetchFn) {
+  if (!maybeFetch) {
     throw new Error(
-      'fetch is not available. In Node.js < 18 or environments without global fetch, ' +
-        'provide a fetch implementation via the fetch option.',
+      'fetch is not available. In Node.js < 18 or environments without global fetch, provide a fetch implementation via the fetch option.',
     );
   }
 
-  const fetchFn = maybeFetchFn;
-
-  async function callApi<T>(
-    method: 'POST' | 'GET',
-    url: string,
-    data: Record<string, unknown> | null,
-    resultSchema: z.ZodSchema<T>,
-  ) {
-    let requestUrl = `${baseUrl}${url}`;
-    const options: RequestInit = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    if (method === 'GET' && data) {
-      const params = new URLSearchParams();
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          params.append(key, String(value));
-        }
-      });
-      requestUrl = `${requestUrl}?${params.toString()}`;
-    } else if (method === 'POST' && data) {
-      options.body = JSON.stringify(data);
-    }
-
-    const response = await fetchFn(requestUrl, options);
-    if (!response.ok) {
-      throw new Error(`Failed to call Agent Stackk API - ${url}`);
-    }
-
-    const json = await response.json();
-    return resultSchema.parse(json);
-  }
+  const callApi = createCallApi({ baseUrl, fetch: maybeFetch });
 
   const createContext = async (providerId: string) =>
     await callApi('POST', '/api/v1/contexts', { metadata: {}, provider_id: providerId }, contextSchema);
@@ -109,7 +73,15 @@ export const buildApiClient = (
     return await callApi('GET', '/api/v1/connectors', null, listConnectorsResponseSchema);
   };
 
-  return { createContextToken, createContext, matchProviders, listConnectors };
+  const usersApi = createUsersApi(callApi);
+
+  return {
+    ...usersApi,
+    createContextToken,
+    createContext,
+    matchProviders,
+    listConnectors,
+  };
 };
 
 export type AgentstackClient = ReturnType<typeof buildApiClient>;

@@ -5,7 +5,7 @@
 
 import type { CreateContextResponse, CreateContextTokenParams, MatchProvidersParams } from 'agentstack-sdk';
 
-import { agentstackClient } from '#api/agentstack-client.ts';
+import { agentStackClient } from '#api/agentstack-client.ts';
 import { api } from '#api/index.ts';
 import { ensureData, fetchEntity } from '#api/utils.ts';
 
@@ -17,7 +17,7 @@ import type {
 } from './types';
 
 export async function createContext(providerId: string): Promise<CreateContextResponse> {
-  return await agentstackClient.createContext(providerId);
+  return await agentStackClient.createContext(providerId);
 }
 
 export async function listContexts(params: ListContextsParams) {
@@ -50,11 +50,11 @@ export async function listContextHistory({ contextId, query }: ListContextHistor
 }
 
 export async function matchProviders(matchProvidersParams: MatchProvidersParams) {
-  return await agentstackClient.matchProviders(matchProvidersParams);
+  return await agentStackClient.matchProviders(matchProvidersParams);
 }
 
 export async function createContextToken(createContextTokenParams: CreateContextTokenParams) {
-  const result = await agentstackClient.createContextToken(createContextTokenParams);
+  const result = await agentStackClient.createContextToken(createContextTokenParams);
   return result.token;
 }
 

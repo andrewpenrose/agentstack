@@ -11,7 +11,7 @@ import { getBaseUrl } from '#utils/api/getBaseUrl.ts';
 
 import { getProxyHeaders, handleFailedResponse } from './utils';
 
-function buildAuthenticatedAgentstackClient() {
+function buildAuthenticatedAgentStackClient() {
   const { isAuthEnabled } = runtimeConfig;
   const baseUrl = getBaseUrl();
 
@@ -50,4 +50,4 @@ function buildAuthenticatedAgentstackClient() {
   return client;
 }
 
-export const agentstackClient = buildAuthenticatedAgentstackClient();
+export const agentStackClient = buildAuthenticatedAgentStackClient();

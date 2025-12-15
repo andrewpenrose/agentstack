@@ -5,13 +5,14 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { readUser } from '..';
+import { agentStackClient } from '#api/agentstack-client.ts';
+
 import { userKeys } from '../keys';
 
 export function useUser() {
   const query = useQuery({
     queryKey: userKeys.detail(),
-    queryFn: readUser,
+    queryFn: agentStackClient.readUser,
     staleTime: Infinity,
     meta: {
       errorToast: {

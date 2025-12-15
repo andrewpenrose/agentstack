@@ -5,6 +5,8 @@
 
 import z from 'zod';
 
+export * from './users/types';
+
 export const contextSchema = z.object({
   id: z.string(),
   created_at: z.string(),
